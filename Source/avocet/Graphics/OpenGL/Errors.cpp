@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <format>
+#include <experimental/generator>
 #include <ranges>
 #include <stdexcept>
 
@@ -35,6 +36,24 @@ namespace avocet::opengl {
             [[nodiscard]]
             bool operator==(const gl_error& rhs) const noexcept { return rhs.value == GL_NO_ERROR; }
         };
+
+        std::experimental::generator<error_codes> get_errors() {
+            /*error_codes e{glGetError ? glGetError() : throw std::runtime_error{"Null OpenGL function pointer"}};
+            if(e == error_codes::none)
+                co_return;
+
+            co_yield e;
+            for(auto x : get_errors())
+                co_yield x;*/
+
+            for([[maybe_unused]] auto n : std::views::iota(0)) {
+                error_codes e{glGetError ? glGetError() : throw std::runtime_error{"Null OpenGL function pointer"}};
+                if(e == error_codes::none)
+                    co_return;
+
+                co_yield e;
+            }
+        }
     }
 
     [[nodiscard]]
@@ -64,12 +83,21 @@ namespace avocet::opengl {
 
     void check_for_errors(std::source_location loc)
     {
-        const auto errorMessage{
+        /*const auto errorMessage{
             std::ranges::fold_left(
                 std::views::iota(gl_error{}, no_error{}),
                 std::string{},
                 [](std::string message, const gl_error& e){
                     return std::move(message) += (to_string(error_codes{e.value}) + "\n");
+                })
+        };*/
+
+        const auto errorMessage{
+            std::ranges::fold_left(
+                get_errors(),
+                std::string{},
+                [](std::string message, const error_codes& e){
+                    return std::move(message) += (to_string(e) + "\n");
                 })
         };
 

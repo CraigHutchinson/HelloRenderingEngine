@@ -55,7 +55,7 @@ int main()
 
         agl::shader_program shaderProgram{get_shader_dir() / "Identity.vs", get_shader_dir() / "Monochrome.fs"};
         agl::triangle tri{make_label("Triangle")};
-        agl::quad q{"Quad"};
+        agl::quad q{make_label("Quad")};
 
         while(!glfwWindowShouldClose(&w.get())) {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

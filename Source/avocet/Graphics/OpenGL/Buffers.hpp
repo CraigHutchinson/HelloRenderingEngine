@@ -139,7 +139,7 @@ namespace avocet::opengl {
     public:
         constexpr static std::size_t N{NumResources.value};
 
-        generic_vertex_object(const std::optional<std::string>& label) {
+        explicit generic_vertex_object(const std::optional<std::string>& label) {
             if(label && object_labels_activated()) {
                 const auto& str{label.value()};
                 for(const auto& h : m_Resource.get_handles())

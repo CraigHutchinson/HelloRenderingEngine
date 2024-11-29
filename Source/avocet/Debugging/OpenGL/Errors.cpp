@@ -181,7 +181,7 @@ namespace avocet::opengl {
         [[nodiscard]]
         std::experimental::generator<error_code> get_errors(max_num_errors bound) {
             for([[maybe_unused]] auto _ : std::views::iota(0u, bound.value)) {
-                error_code e{gl_function{unchecked_debug_output, glGetError}()};
+                const error_code e{gl_function{unchecked_debug_output, glGetError}()};
                 if(e == error_code::none) co_return;
 
                 co_yield e;

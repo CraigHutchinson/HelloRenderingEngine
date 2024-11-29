@@ -12,10 +12,17 @@
 #include <algorithm>
 #include <filesystem>
 #include <format>
-#include <experimental/generator>
 #include <iostream>
 #include <ranges>
 #include <stdexcept>
+
+#if defined(_MSC_VER)
+    #include <experimental/generator>
+    #define STD_GENERATOR std::experimental::generator
+#elif defined(__linux__)
+    #include <generator>
+    #define STD_GENERATOR std::generator
+#endif
 
 #include "glad/gl.h"
 
@@ -179,7 +186,7 @@ namespace avocet::opengl {
         struct max_num_errors { std::size_t value{}; };
 
         [[nodiscard]]
-        std::experimental::generator<error_code> get_errors(max_num_errors bound) {
+        STD_GENERATOR<error_code> get_errors(max_num_errors bound) {
             for([[maybe_unused]] auto _ : std::views::iota(0u, bound.value)) {
                 const error_code e{gl_function{unchecked_debug_output, glGetError}()};
                 if(e == error_code::none) co_return;
@@ -189,7 +196,7 @@ namespace avocet::opengl {
         }
 
         [[nodiscard]]
-        std::experimental::generator<debug_info> get_messages(max_num_errors bound, std::source_location loc) {
+        STD_GENERATOR<debug_info> get_messages(max_num_errors bound, std::source_location loc) {
             for([[maybe_unused]] auto _ : std::views::iota(0u, bound.value)) {
                 const auto optMessage{get_next_message(loc)};
                 if(!optMessage) co_return;

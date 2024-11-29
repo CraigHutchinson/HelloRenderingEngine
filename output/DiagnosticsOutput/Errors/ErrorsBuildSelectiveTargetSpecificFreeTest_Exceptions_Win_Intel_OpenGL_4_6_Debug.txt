@@ -20,3 +20,16 @@ Error has been generated. GL error GL_INVALID_ENUM in BindBuffer: (ID: 136020494
 
 =======================================
 
+Tests/Graphics/OpenGL/ErrorsBuildSelectiveTargetSpecificFreeTest.cpp, Line 54
+Two errors
+
+Expected Exception Type:
+[std::runtime_error]
+OpenGL error detected in Tests/Graphics/OpenGL/ErrorsBuildSelectiveTargetSpecificFreeTest.cpp, line 58:
+Source: API; Type: Error; Severity: High
+Error has been generated. GL error GL_INVALID_OPERATION in BindBuffer: (ID: 1360204945) Generic error
+Source: API; Type: Error; Severity: High
+Error has been generated. GL error GL_INVALID_ENUM in CreateShader: (ID: 4172578152) Generic error
+
+=======================================
+

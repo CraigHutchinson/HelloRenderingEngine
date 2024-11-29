@@ -187,6 +187,16 @@ namespace avocet::opengl {
                 co_yield e;
             }
         }
+
+        [[nodiscard]]
+        std::experimental::generator<debug_info> get_messages(max_num_errors bound, std::source_location loc) {
+            for([[maybe_unused]] auto _ : std::views::iota(0u, bound.value)) {
+                const auto optMessage{get_next_message(loc)};
+                if(!optMessage) co_return;
+
+                co_yield optMessage.value();
+            }
+        }
     }
 
     [[nodiscard]]
@@ -207,16 +217,20 @@ namespace avocet::opengl {
     }
 
     void check_for_advanced_errors(std::source_location loc) {
-        std::string errorMessage{};
-        std::optional<debug_info> currentInfo{};
-        while((currentInfo = get_next_message(loc)) != std::nullopt) {
-            const auto& info{currentInfo.value()};
-            if(info.severity == debug_severity::notification)
-                std::cerr << info.message << '\n';
-            else {
-                (errorMessage += info.message) += "\n";
-            }
-        }
+        const std::string errorMessage{
+            std::ranges::fold_left(
+                get_messages(max_num_errors{10}, loc),
+                std::string{},
+                [](std::string message, debug_info info){
+                    if(info.severity == debug_severity::notification) {
+                        std::cerr << info.message << '\n';
+                        return message;
+                    }
+
+                    return message += info.message += "\n";
+                }
+            )
+        };
 
         if(!errorMessage.empty())
             throw std::runtime_error{compose_error_message(errorMessage, loc)};

@@ -9,9 +9,12 @@
 #include "avocet/Graphics/OpenGL/GLFunction.hpp"
 #include "avocet/Utilities/OpenGL/Casts.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <format>
+#include <experimental/generator>
 #include <iostream>
+#include <ranges>
 #include <stdexcept>
 
 #include "glad/gl.h"
@@ -172,6 +175,18 @@ namespace avocet::opengl {
         std::string compose_error_message(std::string_view errorMessage, std::source_location loc) {
             return std::format("OpenGL error detected in {}:\n{}", avocet::opengl::to_string(loc), errorMessage);
         }
+
+        struct max_num_errors { std::size_t value{}; };
+
+        [[nodiscard]]
+        std::experimental::generator<error_code> get_errors(max_num_errors bound) {
+            for([[maybe_unused]] auto _ : std::views::iota(0u, bound.value)) {
+                error_code e{gl_function{unchecked_debug_output, glGetError}()};
+                if(e == error_code::none) co_return;
+
+                co_yield e;
+            }
+        }
     }
 
     [[nodiscard]]
@@ -179,12 +194,13 @@ namespace avocet::opengl {
 
     void check_for_basic_errors(std::source_location loc)
     {
-        std::string errorMessage{};
-        error_code errorCode{};
-        while((errorCode = error_code{gl_function{unchecked_debug_output, glGetError}()}) != error_code::none)
-        {
-            errorMessage += to_string(errorCode) += "\n";
-        }
+        const std::string errorMessage{
+            std::ranges::fold_left(
+                get_errors(max_num_errors{10}),
+                std::string{},
+                [](std::string message, error_code e){ return message += to_string(e) += "\n"; }
+            )
+        };
 
         if(!errorMessage.empty())
             throw std::runtime_error{compose_error_message(errorMessage, loc)};

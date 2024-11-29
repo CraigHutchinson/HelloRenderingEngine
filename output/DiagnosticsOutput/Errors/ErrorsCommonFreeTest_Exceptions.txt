@@ -25,3 +25,13 @@ gl_function: attempting to construct with a nullptr coming via Tests/Graphics/Op
 
 =======================================
 
+Tests/Graphics/OpenGL/ErrorsCommonFreeTest.cpp, Line 58
+Invalid enum
+
+Expected Exception Type:
+[std::runtime_error]
+OpenGL error detected in Tests/Graphics/OpenGL/ErrorsCommonFreeTest.cpp, line 61:
+Invalid operation
+
+=======================================
+

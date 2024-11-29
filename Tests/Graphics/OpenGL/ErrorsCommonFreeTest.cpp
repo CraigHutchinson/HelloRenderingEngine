@@ -53,5 +53,13 @@ namespace avocet::testing
                 agl::gl_function{glBindBuffer}(42, 42);
             }
         );
+
+        check_filtered_exception_thrown<std::runtime_error>(
+            reporter{"Invalid enum"},
+            [](){
+                glBindBuffer(GL_ARRAY_BUFFER, 42);
+                agl::check_for_basic_errors(std::source_location::current());
+            }
+        );
     }
 }

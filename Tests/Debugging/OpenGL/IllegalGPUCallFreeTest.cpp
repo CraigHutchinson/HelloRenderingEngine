@@ -49,15 +49,5 @@ namespace avocet::testing
                 f(42, 42);
             }
         );
-
-        // Move to target selective
-        /*check_filtered_exception_thrown<std::runtime_error>(
-            reporter{"Two errors"},
-            [](){
-                glBindBuffer(GL_ARRAY_BUFFER, 42);
-                glCreateShader(0);
-                agl::check_for_advanced_errors(std::source_location::current());
-            }
-        );*/
     }
 }
